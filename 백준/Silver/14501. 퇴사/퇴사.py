@@ -8,9 +8,8 @@ for _ in range(n):
 D = [0] * (n + 1)
 
 for i in range(1, n + 1):
-    for j in range(i):
-        if j + T[j] <= i:
-            if i + T[i] <= n + 1:
-                D[i] = max(D[i], D[j] + P[i])
+    if i + T[i] - 1 <= n:
+        D[i + T[i] - 1] = max(D[i + T[i] - 1], D[i - 1] + P[i])
+    D[i] = max(D[i], D[i - 1])
 
-print(max(D))
+print(D[-1])
