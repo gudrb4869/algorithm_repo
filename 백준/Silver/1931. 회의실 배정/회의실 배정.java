@@ -8,7 +8,7 @@ import java.util.StringTokenizer;
 public class Main {
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		int N = Integer.parseInt(br.readLine().trim());
+		int N = Integer.parseInt(br.readLine());
 		StringTokenizer st = null;
 		int[][] A = new int[N][2];
 		for (int i = 0; i < N; i++) {
