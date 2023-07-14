@@ -5,7 +5,7 @@ import java.util.Scanner;
 public class Solution {
 
 	private static int answer;
-	private static int n;
+	private static int n, m;
 	private static int first, second;
 	private static boolean finished;
 	private static int[] count;
@@ -17,9 +17,11 @@ public class Solution {
 		T=sc.nextInt();
 		
 		for(int test_case = 1; test_case <= T; test_case++) {
-			String[] s1 = sc.next().split("");
-			n = sc.nextInt();
-			String[] s2 = s1.clone();
+			String[] str = sc.next().split("");
+			n = str.length;
+			m = sc.nextInt();
+			
+			String[] s2 = str.clone();
 			Arrays.sort(s2, Collections.reverseOrder());
 			first = strToInt(s2);
 			swap(s2, s2.length - 2, s2.length - 1);
@@ -28,7 +30,7 @@ public class Solution {
 			finished = isPossible = false;
 			count = new int[10];
 			
-			for (String s : s1) {
+			for (String s : str) {
 				count[Integer.parseInt(s)]++;
 			}
 			for (int i : count) {
@@ -38,7 +40,7 @@ public class Solution {
 				}
 			}
 			
-			dfs(0, n, s1);
+			dfs(0, m, str);
 			System.out.println("#" + test_case + " " + answer);
 		}
 	}
@@ -66,17 +68,15 @@ public class Solution {
 		}
 		
 		
-		for (int i = 0; i < str.length; i++) {
-			for (int j = 0; j < str.length; j++) {
-				if (i != j && !finished) {
+		for (int i = step; i < str.length; i++) {
+			for (int j = i + 1; j < str.length; j++) {
+				if (!finished) {
 					swap(str, i, j);
 					dfs(step + 1, maxStep, str);
 					swap(str, i, j);
 				}
 			}
 		}
-		
-		
 	}
 
 	private static int strToInt(String[] str) {
