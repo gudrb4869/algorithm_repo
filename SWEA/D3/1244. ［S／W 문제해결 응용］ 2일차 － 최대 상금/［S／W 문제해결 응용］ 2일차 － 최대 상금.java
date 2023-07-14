@@ -7,9 +7,8 @@ public class Solution {
 	private static int answer;
 	private static int n, m;
 	private static int first, second;
-	private static boolean finished;
+	private static boolean promising, isPossible;
 	private static int[] count;
-	private static boolean isPossible;
 
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
@@ -27,7 +26,7 @@ public class Solution {
 			swap(s2, s2.length - 2, s2.length - 1);
 			second = strToInt(s2);
 			answer = 0;
-			finished = isPossible = false;
+			promising = isPossible = false;
 			count = new int[10];
 			
 			for (String s : str) {
@@ -40,19 +39,27 @@ public class Solution {
 				}
 			}
 			
-			dfs(0, m, str);
+			dfs(0, m, str); // 백트래킹 알고리즘 수행
 			System.out.println("#" + test_case + " " + answer);
 		}
 	}
 
-	private static void dfs(int step, int maxStep, String[] str) {
-		if (finished)
+	private static void dfs(int step, int m, String[] str) {
+		if (promising)
 			return;
 		
 		int cur = strToInt(str);
+		
+		if (step >= m) {
+			if (first == cur)
+				promising = true;
+			answer = Integer.max(answer, cur);
+			return;
+		}
+		
 		if (first == cur) {
-			finished = true;
-			if (isPossible || (maxStep - step) % 2 == 0) {
+			promising = true;
+			if (isPossible || (m - step) % 2 == 0) {
 				answer = first;
 			} else {
 				answer = second;
@@ -60,21 +67,11 @@ public class Solution {
 			return;
 		}
 		
-		if (step >= maxStep) {
-			if (first == cur)
-				finished = true;
-			answer = Integer.max(answer, cur);
-			return;
-		}
-		
-		
 		for (int i = step; i < str.length; i++) {
 			for (int j = i + 1; j < str.length; j++) {
-				if (!finished) {
-					swap(str, i, j);
-					dfs(step + 1, maxStep, str);
-					swap(str, i, j);
-				}
+				swap(str, i, j);
+				dfs(step + 1, m, str);
+				swap(str, i, j);
 			}
 		}
 	}
