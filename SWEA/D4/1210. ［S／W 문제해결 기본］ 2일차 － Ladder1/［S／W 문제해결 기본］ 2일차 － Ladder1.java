@@ -5,6 +5,8 @@ import java.util.StringTokenizer;
 /**
  * <pre>
  * dfs 알고리즘을 썻는데 재귀함수로 짰고, 이미 방문한 위치를 체크하기위해 visited배열을 이용하여 가지치기를 함.
+ * 메모리 32,448 kb
+ * 실행시간 155 ms
  * </pre>
  * 
  * @author 박형규
@@ -49,7 +51,6 @@ public class Solution {
 	 * dfs 알고리즘 재귀함수
 	 * @param r 현재 행
 	 * @param c 현재 열
-	 * @param start 시작 x좌표(시작 열)
 	 * @return
 	 */
 	private static void dfs(int r, int c) {
