@@ -18,7 +18,7 @@ import java.util.StringTokenizer;
 public class Main {
 
 	static int n; // 직사각형의 수
-	static int[] histogram; // 히스토그램에 있는 직사각형의 높이를 저장할 배열
+	static int[] histogram = new int[100001]; // 히스토그램에 있는 직사각형의 높이를 저장할 배열
 	static int[] tree = new int[300000]; // 세그먼트 트리. 루트노드번호는 1부터 시작이고 n이 최대10만이므로 여유공간있게 30만개로 크기 초기화
 	
 	public static void main(String[] args) throws Exception {
@@ -33,8 +33,6 @@ public class Main {
 			if (n == 0) { // 0이 입력되면 종료
 				break;
 			}
-			
-			histogram = new int[n + 1]; // 세그먼트트리도 인덱스1부터시작하므로 1부터 n까지 인덱스쓰기위해 n+1크기로 초기화
 			
 			for (int i = 1; i <= n; i++) {
 				histogram[i] = Integer.parseInt(st.nextToken()); // 히스토그램 직사각형의 높이 저장
