@@ -10,12 +10,14 @@ import java.util.Stack;
  * 문자로 인덱스접근하기 귀찮아서 맵 사용함
  * </pre>
  * @author 박형규
+ * 메모리 18,640 KB
+ * 실행시간 109 ms
  *
  */
 public class Solution {
 
-	private static Map<Character, Character> m1 = new HashMap<>(); // 괄호 종류별로 짝짓기위해만든 맵
-	private static Map<Character, Integer> m2 = new HashMap<>(); // 각각의 괄호들 인덱스로 치환하기 위한 맵
+	private static Map<Character, Integer> open = new HashMap<>(); // 여는괄호 인덱스로 바꾸기 위한 맵
+	private static Map<Character, Integer> close = new HashMap<>(); // 닫는괄호 인덱스로 바꾸기 위한 맵
 	
 	private static int n; // 테스트케이스의 길이
 	private static char[] arr; // 테스트케이스
@@ -25,19 +27,15 @@ public class Solution {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringBuilder sb = new StringBuilder();
 		
-		m1.put(')', '('); // )는 (에 매핑
-		m1.put(']', '[');
-		m1.put('}', '{');
-		m1.put('>', '<');
-		
-		m2.put('(', 0); // 각 괄호에 맞게 인덱스화함
-		m2.put(')', 0);
-		m2.put('[', 1);
-		m2.put(']', 1);
-		m2.put('{', 2);
-		m2.put('}', 2);
-		m2.put('<', 3);
-		m2.put('>', 3);
+		open.put('(', 0); // 여는 괄호 인덱스화함
+		open.put('[', 1);
+		open.put('{', 2);
+		open.put('<', 3);
+
+		close.put(')', 0); // 닫는 괄호 인덱스화함
+		close.put(']', 1);
+		close.put('}', 2);
+		close.put('>', 3);
 		
 		for (int t = 1; t <= 10; t++) {
 			n = Integer.parseInt(br.readLine());
@@ -54,14 +52,14 @@ public class Solution {
 	}
 	private static boolean isValid() {
 		for (int i = 0; i < n; i++) { // 문자열 탐색
-			if (m1.keySet().contains(arr[i])) { // ), ], }, > 인 경우
-				int idx = m2.get(arr[i]); // 인덱스얻어옴
+			if (close.keySet().contains(arr[i])) { // ), ], }, > 인 경우
+				int idx = close.get(arr[i]); // 인덱스얻어옴
 				if (s[idx].isEmpty()) { // 해당 괄호에 해당하는 스택이 비어있는 경우
 					return false; // 유효하지않음
 				}
 				s[idx].pop(); // 스택이 비어있지 않은 경우 팝
 			} else { // (, [, {, < 인 경우
-				s[m2.get(arr[i])].push(arr[i]); // 해당 괄호에 해당하는 스택에 값 푸쉬
+				s[open.get(arr[i])].push(arr[i]); // 해당 괄호에 해당하는 스택에 값 푸쉬
 			}
 		}
 		
@@ -72,7 +70,5 @@ public class Solution {
 
 		return true; // 유효함
 	}
-	
-	
 	
 }
