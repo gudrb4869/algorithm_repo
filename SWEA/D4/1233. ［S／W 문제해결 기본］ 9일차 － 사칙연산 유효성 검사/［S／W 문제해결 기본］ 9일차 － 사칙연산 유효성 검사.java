@@ -13,21 +13,22 @@ import java.util.StringTokenizer;
  */
 public class Solution {
 
-	private static int n; // 각 케이스의 트리가 갖는 정점의 총 수
-	
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st = null;
 		StringBuilder sb = new StringBuilder();
 		
 		for (int t = 1; t <= 10; t++) { // 10번 반복
-			n = Integer.parseInt(br.readLine());
-			boolean flag = true;
+			int n = Integer.parseInt(br.readLine()); // 각 케이스의 트리가 갖는 정점의 총 수
+			boolean flag = true; // 계산 가능한지 여부
 			
-			for (int i = 0; i < n; i++) {
+			for (int i = 0; i < n; i++) { // n개의 정점 정보
 				st = new StringTokenizer(br.readLine());
-				st.nextToken();
-				char data = st.nextToken().charAt(0);
+				st.nextToken(); // 정점 번호
+				char data = st.nextToken().charAt(0); // 값
+
+				// 리프노드가 아니면서 정점의 값이 숫자이거나, 리프노드인데 정점의 값이 숫자가 아니면
+				// 계산 불가능
 				if (st.hasMoreTokens() ^ data >= '0' ^ data <= '9') {
 					flag = false;
 				}
@@ -41,7 +42,7 @@ public class Solution {
 			}
 			
 		}
-		System.out.print(sb);
+		System.out.print(sb); // 결과 출력
 	}
 
 }
