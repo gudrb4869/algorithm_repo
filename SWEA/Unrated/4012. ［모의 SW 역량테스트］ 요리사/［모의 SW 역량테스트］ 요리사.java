@@ -6,9 +6,9 @@ import java.util.StringTokenizer;
  * <pre>
  * N(짝수)개의 식재료를 N/2개씩 나누어 두개의 음식을 만들어야하기때문에 조합을 사용함
  * _nC_{n/2}로 A음식에 들어갈 식재료번호와 B에 들어갈 식재료번호를 구함
- * A음식과 B음식의 맛구할땐 순열을 이용해서 시너지값을 더했다.
- * A음식에 들어간 식재료번호N/2개중 순서를 고려해 2개를뽑아 A음식의 맛을 구했고
- * B음식에 들어간 식재료번호N/2개중 순서를 고려해 2개를뽑아 B음식의 맛을 구함
+ * A음식과 B음식의 맛구할땐 조합을 이용해서 시너지값을 더했다.
+ * A음식에 들어간 식재료번호N/2개중 순서를 고려해 2개를뽑아 S[i][j]와 S[j][i]를 더하여 A음식의 맛을 구했고
+ * B음식에 들어간 식재료번호N/2개중 순서를 고려해 2개를뽑아 S[i][j]와 S[j][i]를 더하여 B음식의 맛을 구함
  * 두음식맛의 차이중 최소인 값을 결과값에 저장하여 출력햇음
  * </pre>
  * @author 박형규
@@ -63,9 +63,9 @@ public class Solution {
 			
 			int tasteA = 0, tasteB = 0; // A음식의 맛, B음식의 맛
 			for (int i = 0; i < N>>1; i++) {
-				for (int j = 0; j < N>>1; j++) {
-					tasteA += S[A[i]][A[j]];
-					tasteB += S[B[i]][B[j]];
+				for (int j = i + 1; j < N>>1; j++) {
+					tasteA += S[A[i]][A[j]] + S[A[j]][A[i]];
+					tasteB += S[B[i]][B[j]] + S[B[j]][B[i]];
 				}
 			}
 			answer = Math.min(answer, Math.abs(tasteA - tasteB));
