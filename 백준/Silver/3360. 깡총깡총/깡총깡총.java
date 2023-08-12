@@ -32,6 +32,7 @@ import java.io.InputStreamReader;
  * 따라서 탑다운 방식으로 dp를 진행하여 문제를 해결해보았다.                                                                                           
  * </pre>
  * @author 박형규
+ * 
  */
 public class Main {
 
@@ -48,6 +49,7 @@ public class Main {
 			i -= 3; // dp[i] = (i/2)+1 + dp[i-3]
 		}
 		
-		System.out.println(answer);
+		sb.append(answer).append("\n");
+		System.out.print(sb);
 	}
 }
