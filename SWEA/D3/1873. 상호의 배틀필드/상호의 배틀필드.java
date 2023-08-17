@@ -29,6 +29,8 @@ import java.util.StringTokenizer;
  * 
  * </pre>
  * @author 박형규
+ * 메모리 20,888 KB
+ * 시간 125 ms
  *
  */
 public class Solution {
@@ -36,7 +38,7 @@ public class Solution {
 	static int[] dr = {-1, 0, 1, 0}; // 상,우,하,좌
 	static int[] dc = {0, 1, 0, -1}; // 상,우,하,좌
 	static char[] tank = {'^', '>', 'v', '<'}; // 상,우,하,좌
-	static Map<Character, Integer> m = new HashMap<>(); // 전차의 방향과 인덱스를 매핑할 해시맵
+	static Map<Character, Integer> hm = new HashMap<>(); // 전차의 방향, 커맨드 명령어와 인덱스를 매핑할 해시맵
 	static char[][] arr; // 게임 맵
 	static int r, c, d; // 전차의 위치와 바라보고 있는 방향
 	
@@ -46,10 +48,14 @@ public class Solution {
 		StringBuilder sb = new StringBuilder();
 		
 		int T = Integer.parseInt(br.readLine()); // 테스트 케이스의 수
-		m.put('^', 0);
-		m.put('>', 1);
-		m.put('v', 2);
-		m.put('<', 3);
+		hm.put('^', 0);
+		hm.put('>', 1);
+		hm.put('v', 2);
+		hm.put('<', 3);
+		hm.put('U', 0);
+		hm.put('R', 1);
+		hm.put('D', 2);
+		hm.put('L', 3);
 		
 		for (int t = 1; t <= T; t++) {
 			st = new StringTokenizer(br.readLine());
@@ -61,10 +67,10 @@ public class Solution {
 				char[] input = br.readLine().toCharArray(); // 게임 맵의 정보
 				for (int j = 0; j < W; j++) {
 					arr[i][j] = input[j];
-					if (m.get(arr[i][j]) != null) {
+					if (hm.get(arr[i][j]) != null) {
 						r = i; // 전차의 위치 행
 						c = j; // 전차의 위치 열
-						d = m.get(arr[i][j]); // 전차가 바라보고 있는 방향(0=위,1=오른쪽,2=아래,3=왼쪽)
+						d = hm.get(arr[i][j]); // 전차가 바라보고 있는 방향(0=위,1=오른쪽,2=아래,3=왼쪽)
 						arr[i][j] = '.'; // 전차가 있는 위치를 평지로 세팅
 					}
 				}
@@ -87,38 +93,8 @@ public class Solution {
 						nr += dr[d]; // 전차가 바라보고 있는 방향으로 포탄을 직진시키기 위해 행값 조정
 						nc += dc[d]; // 전차가 바라보고 있는 방향으로 포탄을 직진시키기 위해 열값 조정
 					}
-				} else if (cmd[i] == 'U') { // Up
-					d = 0; // 전차가 바라보는 방향 0으로 세팅
-					int nr = r + dr[d];
-					int nc = c + dc[d];
-					
-					// 이동하려는 곳이 게임 맵 범위에 있고 가려는 곳이 평지일 때만 위치 조정
-					if (nr >= 0 && nr < H && nc >= 0 && nc < W && arr[nr][nc] == '.') {
-						r = nr;
-						c = nc;
-					}
-				} else if (cmd[i] == 'R') { // Right
-					d = 1; // 전차가 바라보는 방향 0으로 세팅
-					int nr = r + dr[d];
-					int nc = c + dc[d];
-					
-					// 이동하려는 곳이 게임 맵 범위에 있고 가려는 곳이 평지일 때만 위치 조정
-					if (nr >= 0 && nr < H && nc >= 0 && nc < W && arr[nr][nc] == '.') {
-						r = nr;
-						c = nc;
-					}
-				} else if (cmd[i] == 'D') { // Up
-					d = 2; // 전차가 바라보는 방향 0으로 세팅
-					int nr = r + dr[d];
-					int nc = c + dc[d];
-					
-					// 이동하려는 곳이 게임 맵 범위에 있고 가려는 곳이 평지일 때만 위치 조정
-					if (nr >= 0 && nr < H && nc >= 0 && nc < W && arr[nr][nc] == '.') {
-						r = nr;
-						c = nc;
-					}
-				} else if (cmd[i] == 'L') { // Up
-					d = 3; // 전차가 바라보는 방향 0으로 세팅
+				} else if (hm.get(cmd[i]) != null) { // Up, Right, Down, Left
+					d = hm.get(cmd[i]); // 전차가 바라보는 방향으로 세팅
 					int nr = r + dr[d];
 					int nc = c + dc[d];
 					
@@ -130,7 +106,7 @@ public class Solution {
 				}
 			}
 			
-			arr[r][c] = tank[d];
+			arr[r][c] = tank[d]; // 탱크가 있는 위치에 바라보고 있는 방향으로 탱크 세팅
 			sb.append("#").append(t).append(" ");
 			for (int i = 0; i < H; i++) {
 				for (int j = 0; j < W; j++) {
