@@ -1,9 +1,7 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.PriorityQueue;
-import java.util.Set;
 import java.util.StringTokenizer;
 
 /**
@@ -54,8 +52,6 @@ public class Main {
 		
 		if (cnt == 3) { // 기저조건
 			
-			Set<Integer> s = new HashSet<>(); // 제거한 적의 초기 위치(r * M + c) 저장할 집합
-
 			int[][] check = new int[N][M];
 			for (int i = 0; i < N; i++) {
 				for (int j = 0; j < M; j++) {
@@ -102,7 +98,6 @@ public class Main {
 						int d = getDistance(N, archer[i], r + time, c); // 적과의 거리
 						if (d <= D) { // 궁수의 공격범위내에 있다면
 							check[r][c] = time; // 해당 적 공격시간 기록
-							s.add(r * M + c); // 집합에 적의 위치 삽입
 						} else { // 공격범위밖이라면
 							pq[i].offer(info); // 다시 우선순위큐에 삽입
 						}
@@ -110,8 +105,15 @@ public class Main {
 					}
 				}
 			}
-			
-			answer = Math.max(answer, s.size()); // 가장 많은 적을 제거한 경우로 갱신
+			int result = 0;
+			for (int i = 0; i < N; i++) {
+				for (int j = 0; j < M; j++) {
+					if (check[i][j] >= 0) { // 해당 적이 공격당했다면
+						result++; // 1증가
+					}
+				}
+			}
+			answer = Math.max(answer, result); // 가장 많은 적을 제거한 경우로 갱신
 			return;
 		}
 		
