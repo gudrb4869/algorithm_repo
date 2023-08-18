@@ -24,6 +24,7 @@ import java.util.StringTokenizer;
 public class Main {
 
 	static int N, M, D, arr[][], archer[], answer;
+	static PriorityQueue<int[]>[] pq = new PriorityQueue[3]; // 세명의 궁수에 대해 적들의 위치를 가까운순으로 꺼낼 우선순위 큐
 	
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -43,6 +44,21 @@ public class Main {
 			}
 		}
 		
+		for (int i = 0; i < 3; i++) {
+			int k = i;
+			pq[k] = new PriorityQueue<>(new Comparator<int[]>() {
+				@Override
+				public int compare(int[] a, int[] b) {
+					int distA = getDistance(a[0], a[1], N, archer[k]); // 적a와 k번째 궁수의 거리
+					int distB = getDistance(b[0], b[1], N, archer[k]); // 적b와 k번째 궁수의 거리
+					
+					if (distA == distB) { // 가장 가까운 적이 여럿일 경우에는
+						return a[1] - b[1]; // 가장 왼쪽에 있는 적부터 공격할 수 있도록 정렬조건 세팅
+					}
+					return distA - distB; // 거리가 가장 가까운 적부터 나올수있도록 정렬조건 설정
+				}
+			});
+		}
 		combination(0, 0); // mC3 조합의 경우의 수마다 제거할 수 있는 적의 최대수를 계산
 		
 		System.out.println(answer); // 결과 출력
@@ -58,23 +74,9 @@ public class Main {
 					check[i][j] = -1; // 1~3번째 궁수들이 최초로 해당 적을 공격한 시간
 				}
 			}
-			PriorityQueue<int[]>[] pq = new PriorityQueue[3]; // 세명의 궁수에 대해 적들의 위치를 가까운순으로 꺼낼 우선순위 큐
 			
 			for (int i = 0; i < 3; i++) {
-				int k = i;
-				pq[k] = new PriorityQueue<>(new Comparator<int[]>() {
-					@Override
-					public int compare(int[] a, int[] b) {
-						int distA = getDistance(a[0], a[1], N, archer[k]); // 적a와 k번째 궁수의 거리
-						int distB = getDistance(b[0], b[1], N, archer[k]); // 적b와 k번째 궁수의 거리
-						
-						if (distA == distB) { // 가장 가까운 적이 여럿일 경우에는
-							return a[1] - b[1]; // 가장 왼쪽에 있는 적부터 공격할 수 있도록 정렬조건 세팅
-						}
-						return distA - distB; // 거리가 가장 가까운 적부터 나올수있도록 정렬조건 설정
-					}
-				});
-				
+				pq[i].clear();
 			}
 			
 			for (int i = 0; i < N; i++) {
