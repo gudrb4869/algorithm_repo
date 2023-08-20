@@ -1,7 +1,12 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 /**
@@ -17,6 +22,7 @@ import java.util.StringTokenizer;
  * 궁수의 공격범위 D가 주어지고 그 범위내에 적이 있으면 공격이 가능함
  * N*M의 격자가 있을때 궁수는 N+1행의 M칸중 3개의 칸에 배치를 해야함
  * 따라서 M개중 3개를 뽑는 MC3 조합을 이용해 경우의수에 게임결과중 최댓값을 리턴하도록 해보았다.
+ * 가장 가까운 적을 찾을때는 bfs를 이용했다.
  * </pre>
  * @author 박형규
  *
@@ -24,7 +30,9 @@ import java.util.StringTokenizer;
 public class Main {
 
 	static int N, M, D, arr[][], archer[], answer;
-	static PriorityQueue<int[]>[] pq = new PriorityQueue[3]; // 세명의 궁수에 대해 적들의 위치를 가까운순으로 꺼낼 우선순위 큐
+	static int[] dr = {0, -1, 0}; // 좌,상,우
+	static int[] dc = {-1, 0, 1}; // 좌,상,우
+	static boolean[][] visited;
 	
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -35,6 +43,7 @@ public class Main {
 		D = Integer.parseInt(st.nextToken()); // 궁수의 공격 거리 제한 D
 		
 		arr = new int[N][M]; // N * M 격자
+		visited = new boolean[N][M]; // N * M 방문배열
 		archer = new int[3]; // 궁수3명의 위치(0~M-1)
 		
 		for (int i = 0; i < N; i++) {
@@ -44,21 +53,6 @@ public class Main {
 			}
 		}
 		
-		for (int i = 0; i < 3; i++) {
-			int k = i;
-			pq[k] = new PriorityQueue<>(new Comparator<int[]>() {
-				@Override
-				public int compare(int[] a, int[] b) {
-					int distA = getDistance(a[0], a[1], N, archer[k]); // 적a와 k번째 궁수의 거리
-					int distB = getDistance(b[0], b[1], N, archer[k]); // 적b와 k번째 궁수의 거리
-					
-					if (distA == distB) { // 가장 가까운 적이 여럿일 경우에는
-						return a[1] - b[1]; // 가장 왼쪽에 있는 적부터 공격할 수 있도록 정렬조건 세팅
-					}
-					return distA - distB; // 거리가 가장 가까운 적부터 나올수있도록 정렬조건 설정
-				}
-			});
-		}
 		combination(0, 0); // mC3 조합의 경우의 수마다 제거할 수 있는 적의 최대수를 계산
 		
 		System.out.println(answer); // 결과 출력
@@ -67,55 +61,34 @@ public class Main {
 	private static void combination(int cnt, int start) {
 		
 		if (cnt == 3) { // 기저조건
-			
-			int[][] check = new int[N][M];
+
+			int[][] board = new int[N][M]; // 격자판 복사해서 저장할 배열
+			int killCnt = 0; // 제거한 적의 수
 			for (int i = 0; i < N; i++) {
 				for (int j = 0; j < M; j++) {
-					check[i][j] = -1; // 1~3번째 궁수들이 최초로 해당 적을 공격한 시간
+					board[i][j] = arr[i][j]; // 2차원 배열 복제
 				}
 			}
 			
-			for (int i = 0; i < 3; i++) {
-				pq[i].clear();
+			for (int t = 0; t < N; t++) {
+				Set<Integer> s = new HashSet<>();
+				
+				for (int i = 0; i < 3; i++) {
+					int location = bfs(N - 1, archer[i], board); // i+1 번째 궁수기준으로 가장 가까운 적의 위치
+					if (location != -1) { // 가장 가까운 적이 공격범위 내에 있을때만
+						s.add(location); // 적의 위치 추가
+					}
+				}
+				killCnt += s.size(); // 제거한 적의 수 증가
+				for (int location : s) { // 제거한 적의 위치값 0으로 세팅
+					int r = location / M;
+					int c = location % M;
+					board[r][c] = 0;
+				}
+				downEnemy(board); // 한칸 아래로 내림
 			}
 			
-			for (int i = 0; i < N; i++) {
-				for (int j = 0; j < M; j++) {
-					if (arr[i][j] == 1) { // 적의 위치이면
-						for (int k = 0; k < 3; k++) {
-							pq[k].offer(new int[] {i, j}); // 3개의 우선순위큐에 적의 위치 삽입
-						}
-					}
-				}
-			}
-			
-			for (int time = 0; time < N; time++) { // 0초부터 N-1초까지 게임이 진행됨
-				for (int i = 0; i < 3; i++) { // 첫번째 궁수부터 세번째 궁수에 대해 공격할 적 탐색
-					while (!pq[i].isEmpty()) { // 반복문 조건
-						int[] info = pq[i].poll();
-						int r = info[0], c = info[1]; // 적의 초기 위치
-						if (r + time >= N || (check[r][c] >= 0 && check[r][c] < time)) { // 성에 도달했거나, 이미 해당적이 이전시간에 공격되어 제거되었다면
-							continue; // 무시
-						}
-						int d = getDistance(N, archer[i], r + time, c); // 적과의 거리
-						if (d <= D) { // 궁수의 공격범위내에 있다면
-							check[r][c] = time; // 해당 적 공격시간 기록
-						} else { // 공격범위밖이라면
-							pq[i].offer(info); // 다시 우선순위큐에 삽입
-						}
-						break;
-					}
-				}
-			}
-			int result = 0;
-			for (int i = 0; i < N; i++) {
-				for (int j = 0; j < M; j++) {
-					if (check[i][j] >= 0) { // 해당 적이 공격당했다면
-						result++; // 1증가
-					}
-				}
-			}
-			answer = Math.max(answer, result); // 가장 많은 적을 제거한 경우로 갱신
+			answer = Math.max(answer, killCnt); // 가장 많은 적을 제거한 경우로 갱신
 			return;
 		}
 		
@@ -123,6 +96,50 @@ public class Main {
 			archer[cnt] = i;
 			combination(cnt + 1, i + 1);
 		}
+	}
+
+	private static void downEnemy(int[][] board) {
+		for (int i = N - 1; i >= 1; i--) {
+			for (int j = 0; j < M; j++) {
+				board[i][j] = board[i - 1][j];
+			}
+		}
+		
+		Arrays.fill(board[0], 0);
+	}
+
+	private static int bfs(int startR, int startC, int[][] board) {
+		for (int i = 0; i < N; i++) {
+			Arrays.fill(visited[i], false);// 방문관리 배열 초기화
+		}
+		Queue<int[]> q = new ArrayDeque<>();
+		q.offer(new int[] {startR, startC, 1}); // 시작위치 바로위칸에서 시작
+		visited[startR][startC] = true; // 시작위치 방문체크
+		
+		while (!q.isEmpty()) {
+			int[] info = q.poll();
+			int r = info[0], c = info[1], d = info[2];
+			
+			if (board[r][c] == 1) { // 해당위치가 적의 위치이면
+				if (d > D) { // 공격범위보다 멀리있는 경우
+					return -1;
+				}
+				return r * M + c; // 공격범위 내에 있는 경우
+			}
+			
+			for (int i = 0; i < 3; i++) {
+				int nr = r + dr[i];
+				int nc = c + dc[i];
+				
+				if (nr < 0 || nr >= N || nc < 0 || nc >= M || visited[nr][nc]) {
+					continue; // 격자판 벗어낫거나 이미 방문한 곳일경우 건너뜀
+				}
+				
+				visited[nr][nc] = true; // 해당 위치 방문 체크
+				q.offer(new int[] {nr, nc, d + 1}); // 큐에 삽입
+			}
+		}
+		return -1;
 	}
 
 	public static int getDistance(int r1, int c1, int r2, int c2) { // 두 지점간의 거리
