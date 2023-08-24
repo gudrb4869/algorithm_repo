@@ -9,7 +9,7 @@ import java.util.StringTokenizer;
  * <pre>
  * 최소 신장 트리 문제
  * 프림 알고리즘을 이용하여 해결
- * 각 좌표들의 정보를 저장한다음, i번째 섬을 i번 정점으로 생각하여 인접리스트를 만들었다.
+ * 각 좌표들의 정보를 저장한다음, i번째 섬을 i번 정점으로 생각하여 인접행렬을 만들었다.
  * </pre>
  * @author 박형규
  *
@@ -69,6 +69,7 @@ public class Solution {
 			
 			double E = Double.parseDouble(br.readLine()); // 해저터널 건설의 환경 부담 세율
 			
+			// 프림 알고리즘
 			PriorityQueue<Vertex> pq = new PriorityQueue<>();
 			long[] minEdge = new long[N];
 			boolean[] visited = new boolean[N];
@@ -102,6 +103,7 @@ public class Solution {
 				}
 			}
 			
+			// 모든 섬들을 잇는 최소 환경 부담금을 소수 첫째 자리에서 반올림하여 정수 형태로 출력
 			sb.append("#").append(tc).append(" ").append(Math.round(cost)).append("\n");
 		}
 		
