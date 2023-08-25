@@ -12,6 +12,7 @@ import java.util.StringTokenizer;
  * 최대한 많은 Core에 전원을 연결하였을 경우, 전선 길이의 합
  * 
  * 부분집합 이용하여 문제 해결
+ * 중간중간에 가지치기도 해줌
  * </pre>
  * @author 박형규
  *
@@ -21,8 +22,8 @@ public class Solution {
 
 	static int N, K, answer, size, INF = Integer.MAX_VALUE;
 	static int[][] cell;
-	static int[] dr = {0, -1, 0, 1, 0}; // 제자리, 상, 우, 하, 좌
-	static int[] dc = {0, 0, 1, 0, -1}; // 제자리, 상, 우, 하, 좌
+	static int[] dr = {-1, 0, 1, 0, 0}; // 상, 우, 하, 좌, 제자리
+	static int[] dc = {0, 1, 0, -1, 0}; // 상, 우, 하, 좌, 제자리
 	static List<int[]> list; // 코어가 있는 위치를 저장할 리스트
 	
 	public static void main(String[] args) throws NumberFormatException, IOException {
@@ -68,7 +69,7 @@ public class Solution {
 	 */
 	private static void subset(int cnt, int selected, int unselected, int sum) {
 		
-		if ((K - unselected) + selected < size) { // 가지치기
+		if (K - unselected < size) { // 가지치기
 			return;
 		}
 		
