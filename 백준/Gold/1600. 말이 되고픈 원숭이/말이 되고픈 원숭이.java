@@ -1,19 +1,13 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Comparator;
-import java.util.PriorityQueue;
+import java.util.ArrayDeque;
+import java.util.Queue;
 import java.util.StringTokenizer;
 
 /**
  * <pre>
- * 원숭이가 능력을 사용한 횟수에 따라 동작수의 최솟값이 다르므로 DP테이블을 3차원으로 초기화 시켜주었다.
- * 
- * arr[i][j] == 0이고,
- * 현위치 (i,j)에서 초능력을 k번 사용한 원숭이의 동작수의 최솟값을 dp[i][j][k]
- * 
  * BFS + DP 문제
- * 동작수의 최솟값들부터 꺼내기 위해 우선순위큐를 썼음
  * 
  * </pre>
  * @author 박형규
@@ -51,37 +45,31 @@ public class Main {
 		}
 
 		// (0, 0) -> (H-1, W-1)까지 가야함
-		int[][][] dp = new int[H][W][K + 1]; // 좌표, 말처럼 이동한 횟수
+		int[][][] distance = new int[H][W][K + 1]; // 좌표, 말처럼 이동한 횟수에 따라 동작수의 최솟값을 저장할 3차원 배열
 		for (int i = 0; i < H; i++) {
 			for (int j = 0; j < W; j++) {
 				for (int k = 0; k <= K; k++) {
-					dp[i][j][k] = INF; // 무한대로 세팅
+					distance[i][j][k] = INF; // 무한대로 세팅
 				}
 			}
 		}
 		
-		PriorityQueue<int[]> pq = new PriorityQueue<>(new Comparator<int[]>() {
-			@Override
-			public int compare(int[] a, int[] b) {
-				if (a[0] == b[0]) {
-					return a[1] - b[1];
-				}
-				return a[0] - b[0];
-			}
-		});
-		pq.offer(new int[] {0, 0, 0, 0}); // 이동횟수, 능력사용횟수, 현재좌표 행, 현재좌표 열
-		dp[0][0][0] = 0; // 시작점에서 원숭이의 동작수
+		// BFS에 사용할 큐 선언
+		Queue<int[]> q = new ArrayDeque<>();
+		
+		q.offer(new int[] {0, 0, 0, 0}); // 이동횟수, 능력사용횟수, 현재좌표 행, 현재좌표 열
+		distance[0][0][0] = 0; // 시작점에서 원숭이의 동작수
 		
 		int dr = 0, dc = 0, nr = 0, nc = 0;
-		while (!pq.isEmpty()) {
-			int[] info = pq.poll();
+		while (!q.isEmpty()) { // 너비우선탐색 반복 조건
+			int[] info = q.poll();
 			int cnt = info[0], k = info[1], r = info[2], c = info[3];
 			
-			if (cnt > dp[r][c][k]) {
+			if (cnt > distance[r][c][k]) { // 이미 테이블에 저장된 거리가 더 작은 경우 skip
 				continue;
 			}
 			
-			if (k < K) {
+			if (k < K) { // 능력다 안쓴경우에만 말처럼 이동해봄
 				for (int[] d : horse) { // 말의 동작 8방향
 					dr = d[0];
 					dc = d[1];
@@ -90,9 +78,9 @@ public class Main {
 					nc = c + dc;
 					
 					if (nr < 0 || nr >= H || nc < 0 || nc >= W || board[nr][nc] == 1) continue; // 격자판을 벗어난 경우
-					if (dp[nr][nc][k + 1] > dp[r][c][k] + 1) { // k-1번 능력사용한 상태의 이전위치 pr, pc에서 능력을 1회사용하여 r,c로 1칸이동해온 동작수가 더 작은경우
-						dp[nr][nc][k + 1] = dp[r][c][k] + 1; // 최솟값으로 갱신
-						pq.offer(new int[] {dp[nr][nc][k + 1], k + 1, nr, nc});
+					if (distance[nr][nc][k + 1] > distance[r][c][k] + 1) { // k-1번 능력사용한 상태의 이전위치 pr, pc에서 능력을 1회사용하여 r,c로 1칸이동해온 동작수가 더 작은경우
+						distance[nr][nc][k + 1] = distance[r][c][k] + 1; // 최솟값으로 갱신
+						q.offer(new int[] {distance[nr][nc][k + 1], k + 1, nr, nc});
 					}
 				}
 			}
@@ -105,17 +93,17 @@ public class Main {
 				
 				if (nr < 0 || nr >= H || nc < 0 || nc >= W || board[nr][nc] == 1) continue; // 격자판을 벗어난 경우
 				
-				if (dp[nr][nc][k] > dp[r][c][k] + 1) { // k번 능력사용한상태의 이전위치 pr, pc에서 r, c로 1칸이동해온 동작수가 더 작은경우
-					dp[nr][nc][k] = dp[r][c][k] + 1; // 최솟값으로 갱신
-					pq.offer(new int[] {dp[nr][nc][k], k, nr, nc});
+				if (distance[nr][nc][k] > distance[r][c][k] + 1) { // k번 능력사용한상태의 이전위치 pr, pc에서 r, c로 1칸이동해온 동작수가 더 작은경우
+					distance[nr][nc][k] = distance[r][c][k] + 1; // 최솟값으로 갱신
+					q.offer(new int[] {distance[nr][nc][k], k, nr, nc});
 				}
 			}
 		}
 		
 		int answer = INF; // 원숭이의 동작수를 저장할 변수
 		for (int k = 0; k <= K; k++) { // H-1, W-1 도착점에서 능력을 0회부터 K회 사용한 것 전부다 조회
-			if (answer > dp[H - 1][W - 1][k]) { // 현재저장된 값보다 더 작은경우
-				answer = dp[H - 1][W - 1][k]; // 최솟값으로 갱신
+			if (answer > distance[H - 1][W - 1][k]) { // 현재저장된 값보다 더 작은경우
+				answer = distance[H - 1][W - 1][k]; // 최솟값으로 갱신
 			}
 		}
 		
