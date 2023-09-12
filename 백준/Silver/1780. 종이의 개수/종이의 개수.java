@@ -17,6 +17,7 @@ public class Main {
 	public static void main(String[] args) throws NumberFormatException, IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in)); // 입력 스트림
 		StringTokenizer st;
+		StringBuilder sb = new StringBuilder(); // 출력 스트림
 		
 		N = Integer.parseInt(br.readLine()); // 행렬의 가로 세로 길이(1~ 3^7, 3^k꼴)
 		
@@ -32,9 +33,8 @@ public class Main {
 		
 		dc(0, 0, N); // 분할정복 수행
 		
-		System.out.println(cnt1); // -1로만 채워진 종이의 개수
-		System.out.println(cnt2); // 0으로만 채워진 종이의 개수
-		System.out.println(cnt3); // 1로만 채워진 종이의 개수
+		sb.append(cnt1).append("\n").append(cnt2).append("\n").append(cnt3).append("\n");
+		System.out.print(sb); // 결과 출력
 	}
 
 	private static void dc(int r, int c, int size) {
