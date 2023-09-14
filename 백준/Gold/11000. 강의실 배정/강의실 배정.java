@@ -1,69 +1,65 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
 /**
  * <pre>
- * S에 시작해서 T에 끝나는 N개의 수업이 존재
- * 최소의 강의실을 사용해서 모든 수업을 가능하게 해야함
- * 
- * 정리
- * BJ 1931 회의실 배정과 살짝 비슷한 문제인데 살짝 다르다.
- * 위 문제는 한 강의실에 최대한 많은 강의를 넣어야하기때문에, 빨리끝나는수업을먼저넣어야 남은시간동안 더많은 수업을 넣을 가능성이 생기기때문에 끝나는시간을 우선으로 정렬해줬다.
- * 하지만 이문제는 최소한의 강의실을 사용하여 모든 수업들을 배정해야하기때문에, 빨리시작하는수업을먼저강의실에배정해야 최소한의 강의실로 배정할 가능성이 생긴다.
- * 따라서 시작시간 기준 오름차순정렬하고, 우선순위큐를 써서 만약 꺼낸값의 종료시간보다 해당수업의 시작시간이 더 작거나 같을땐 큐에서 꺼낸다.
- * 수업 종료시간을 우선순위큐에 삽입한다.
+ * N개의 수업을 강의 시작 시간을 기준으로 오름차순 정렬. 시작시간이 동일한 경우 강의 종료시간을 기준으로 오름차순 정렬
+ * 우선순위큐에 현재 사용중인 강의실의 수업이 끝나는 시간을 저장한다.
+ * 정렬된 N개의 수업을 순차탐색하면서 현재 수업의 시작시간이 우선순위큐의 루트값보다 작은 경우에는 해당 강의실에서 수업을 진행할 수 없으므로 강의실의 개수 1개 추가
+ * 현재 수업의 시작시간이 우선순위큐의 루트값보다 크거나 같은 경우 해당 강의실에서 강의가 진행가능하므로 강의실 종료시간을 갱신
  * </pre>
  * @author 박형규
  */
 public class Main {
 
-	
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws NumberFormatException, IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in)); // 입력 스트림
-		StringTokenizer st; // 공백 단위 입력 처리
+		StringTokenizer st;
 		
 		int N = Integer.parseInt(br.readLine()); // 수업의 개수
 		
-		Course[] courseList = new Course[N];
+		int answer = 1; // 강의실의 개수
+		PriorityQueue<Integer> pq = new PriorityQueue<>(new Comparator<Integer>() {
+			@Override
+			public int compare(Integer a, Integer b) {
+				return a - b; // 강의 종료시간이 가장 빠른 순으로 삽입, 추출됨
+			}
+		});
+		pq.offer(0); // 초기값 세팅
 		
+		int[][] arr = new int[N][2]; // N개의 강의들의 시작시간과 종료시간 저장할 2차원 배열 선언 및 초기화
 		for (int i = 0; i < N; i++) {
 			st = new StringTokenizer(br.readLine());
-			int start = Integer.parseInt(st.nextToken());
-			int end = Integer.parseInt(st.nextToken());
-			courseList[i] = new Course(start, end);
+			arr[i][0] = Integer.parseInt(st.nextToken()); // 수업 시작 시간
+			arr[i][1] = Integer.parseInt(st.nextToken()); // 수업 종료 시간
 		}
 		
-		Arrays.sort(courseList);
-		
-		PriorityQueue<Integer> pq = new PriorityQueue<>();
-		pq.offer(courseList[0].end); // 첫 강의실 세팅
-		for (int i = 1; i < N; i++) {
-			if (pq.peek() <= courseList[i].start) {
-				pq.poll();
+		Arrays.sort(arr, new Comparator<int[]>() {
+			@Override
+			public int compare(int[] a, int[] b) {
+				if (a[0] == b[0]) return a[1] - b[1]; // 강의 시작 시간이 같은 경우 종료 시간이 빠른 순으로 정렬
+				return a[0] - b[0]; // 강의 시작 시간이 빠른 순으로 정렬
 			}
-			pq.offer(courseList[i].end);
+		});
+		
+		// 우선순위큐의 루트노드값은 강의실들 중에서 가장 강의가 빨리 끝나는 강의실이다.
+		for (int i = 0; i < N; i++) { // N개의 강의 순차 탐색
+			if (pq.peek() > arr[i][0]) { // 현재 강의 시작 시간이 강의가 가장빨리끝나는 강의실의 종료시간보다 작은 경우
+				// 해당 강의실에서 연속해서 강의진행불가하므로 새로운 강의실을 배정
+				answer++; // 필요한 강의실의 개수 1 증가
+			} else { // 현재 강의시작시간이 강의가 가장빨리끝나는 강의실의 종료시간보다 크거나 같은경우
+				// 해당 강의실에서 연속해서 강의진행가능함
+				pq.poll(); // 루트노드 추출
+			}
+			pq.offer(arr[i][1]); // 현재 강의 종료시간 우선순위큐에 삽입
 		}
-
-		System.out.println(pq.size()); // 결과 출력
+		
+		System.out.println(answer); // 강의실의 개수 출력
 	}
 
-}
-
-class Course implements Comparable<Course> {
-	int start, end;
-	
-	public Course(int start, int end) {
-		this.start = start;
-		this.end = end;
-	}
-	
-	@Override
-	public int compareTo(Course o) {
-		if (start == o.start) return end - o.end; // 시작 시간 같은 경우 끝나는 시간이 빠른 수업이 먼저오도록 정렬
-		return start - o.start; // 시작 시간이 빠른 수업이 먼저오도록 정렬
-	}
-	
 }
