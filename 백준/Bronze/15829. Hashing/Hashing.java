@@ -22,7 +22,7 @@ public class Main {
 		long hash = 0;
 		int M = 1234567891;
 		for (int i = 0; i < L; i++) {
-			hash += (arr[i] - 'a' + 1) * Math.pow(31, i);
+			hash += ((arr[i] - 'a' + 1) * Math.pow(31, i)) % M;
 			hash %= M;
 		}
 		System.out.println(hash);
