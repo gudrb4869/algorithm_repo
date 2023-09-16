@@ -19,12 +19,16 @@ public class Main {
 		int L = Integer.parseInt(br.readLine()); // 문자열의 길이
 		char[] arr = br.readLine().toCharArray(); // 문자열
 		
-		long hash = 0;
-		int M = 1234567891;
+		long hash = 0, M = 1234567891;
 		for (int i = 0; i < L; i++) {
-			hash += ((arr[i] - 'a' + 1) * (long) Math.pow(31, i)) % M;
+			long cur = arr[i] - 'a' + 1; 
+			for (int j = 0; j < i; j++) {
+				cur *= 31;
+				cur %= M;
+			}
+			hash += cur;
+			hash %= M;
 		}
-		hash %= M;
 		System.out.println(hash);
 	}
 
