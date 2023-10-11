@@ -29,7 +29,7 @@ public class Solution {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringBuilder sb = new StringBuilder();
 		
-		int T = Integer.parseInt(br.readLine());
+		int T = Integer.parseInt(br.readLine()); // 테스트 케이스의 수
 		
 		for (int t = 1; t <= T; t++) {
 			
@@ -40,18 +40,11 @@ public class Solution {
 			int x2 = Integer.parseInt(st.nextToken());
 			int y2 = Integer.parseInt(st.nextToken());
 			
-			int dx = Math.abs(x1 - x2);
-			int dy = Math.abs(y1 - y2);
+			int dx = Math.abs(x1 - x2); // 세로 거리
+			int dy = Math.abs(y1 - y2); // 가로 거리
+			int diff = Math.abs(dx - dy); // 가로 세로 거리의 차
 			
-			int answer = dx + dy;
-			
-			int diff = Math.abs(dx - dy);
-			
-			int i = (dx + dy) % 2;
-			while (i < diff) {
-				answer += 2;
-				i += 2;
-			}
+			int answer = dx + dy + (diff - ((dx + dy) & 1)); // 가로 거리 + 세로 거리 + (차 - (합의 홀짝여부))
 			
 			sb.append("#").append(t).append(" ").append(answer).append("\n");
 		}
