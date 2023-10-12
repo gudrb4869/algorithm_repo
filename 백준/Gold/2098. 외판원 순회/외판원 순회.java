@@ -5,69 +5,74 @@ import java.util.StringTokenizer;
 
 /**
  * <pre>
- * 다이나믹 프로그래밍, 비트마스킹을 이용하여 풀었다.
- * N개의 도시의 방문 상태를 나타내기 위해 1<<N개의 수를 사용했다.
- * 최소비용을 갖는 경로가 있을 때 N개의 도시 어느곳에서 출발해도 최소비용이 똑같이 나오기때문에
- * 문제를 풀기위해 0번도시에서 출발하는 것으로 고정시켜놓고 풀었다.
+ * 도시가 5개 있고 최소비용 경로가
+ * 4 -> 1 -> 2 -> 0 -> 3 이라고 할때
+ * (4,1,2,0,3)은 (1,2,0,3,4), (2,0,3,4,1), (0,3,4,1,2), (3,4,1,2,0)과 모두 같은 결과를 가지게 된다.
+ * 따라서 출발 도시를 0번도시로 고정시켜놓고 최소비용을 찾으면 된다.
+ * 현재도시가 어디인지, 현재까지 방문한 도시가 어디인지를 체크하는 메서드를 재귀적으로 이용하면 풀수있다.
  * </pre>
  * @author 박형규
  *
  */
 public class Main {
 
-	static final int INF = 987654321;
-	static int N, W[][], dp[][];
-
+	static int N, W[][], dp[][]; // 도시의 수, 비용행렬, 외판원순회에 필요한 최소비용
+	static final int INF = 999999999; // 무한대값
+	
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		
-		N = Integer.parseInt(br.readLine()); // 첫째 줄, 도시의 수
+		N = Integer.parseInt(br.readLine()); // 첫째 줄 입력, 도시의 수 (2 ~ 16)
 		
-		W = new int[N][N]; // 비용행렬
-		dp = new int[N][1 << N]; // 동적 테이블
+		W = new int[N][N]; // 비용 행렬
+		dp = new int[N][1 << N];
 		
-		for (int i = 0; i < N; i++) { // 다음 N개의 줄 입력
-			StringTokenizer st = new StringTokenizer(br.readLine()); // 비용 행렬이 주어짐
+		for (int i = 0; i < N; i++) {
+			StringTokenizer st = new StringTokenizer(br.readLine());
 			
 			for (int j = 0; j < N; j++) {
-				W[i][j] = Integer.parseInt(st.nextToken()); // 도시 i에서 j로 가기 위한 비용
+				W[i][j] = Integer.parseInt(st.nextToken());
 			}
 		}
 		
-		int answer = TSP(0, 1); // 외판원 순회 알고리즘 수행
-		System.out.println(answer); // 외판원의 순회에 필요한 최소 비용 출력
+		System.out.println(TSP(0, 1));
 	}
-
+	
 	/**
-	 * 외판원 순회 알고리즘
-	 * @param now 현재 노드
-	 * @param visited 현재까지 방문한 노드 -> 비트마스킹으로 표현
-	 * @return
+	 * TSP 알고리즘
+	 * @param now 현재 도시
+	 * @param visited 현재까지 방문한 도시 체크(비트마스킹)
+	 * @return 외판원 순회에 필요한 최소 비용
 	 */
 	private static int TSP(int now, int visited) {
 		
-		if (visited == (1 << N) - 1) {
-			return (W[now][0] == 0) ? INF : W[now][0];
-		}
-		
-		if (dp[now][visited] != 0) {
+		if (dp[now][visited] != 0) { // 메모이제이션된 경우 기존 값 갖다 사용
 			return dp[now][visited];
 		}
+
+		dp[now][visited] = INF; // 무한대 값으로 초기화
 		
-		dp[now][visited] = INF;
-		
-		for (int i = 0; i < N; i++) {
-			if (W[now][i] == 0) {
-				continue; // 현재노드에서 다음노드로 갈 수 없는 경우 패스
+		if (visited == (1 << N) - 1) { // 모든 도시를 방문완료한 경우
+			
+			if (W[now][0] > 0) { // 현재도시 now에서 출발도시 0으로 갈 수 있는 경우
+				dp[now][visited] = W[now][0];
 			}
 			
-			if ((visited & (1 << i)) > 0) { // 이미 방문한 정점인 경우 패스
-				continue;
+		} else { // 아직 미방문 도시가 있는 경우
+			
+			for (int i = 0; i < N; i++) {
+				if (W[now][i] == 0) {
+					continue; // 현재도시 now에서 다음도시i로 갈 수 없는 경우 패스
+				}
+				
+				if ((visited & (1 << i)) > 0) {
+					continue; // i도시를 이미 방문한 경우 패스
+				}
+				
+				int temp = TSP(i, visited | (1 << i)); // 다음 도시 i로 이동한 뒤 외판원 순회 재귀 호출했을때 최소 비용 획득
+				dp[now][visited] = Math.min(dp[now][visited], W[now][i] + temp); // 현재 저장된값과 현재도시에서 i로갔을때 최소비용중 최솟값으로 갱신
 			}
 			
-			// i번 노드 방문 처리 후 최소 비용 반환
-			int temp = TSP(i, visited | (1 << i));
-			dp[now][visited] = Math.min(dp[now][visited], W[now][i] + temp);
 		}
 		
 		return dp[now][visited];
