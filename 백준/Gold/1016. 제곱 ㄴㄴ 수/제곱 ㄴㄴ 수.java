@@ -1,7 +1,6 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.StringTokenizer;
 
 /**
@@ -12,6 +11,7 @@ import java.util.StringTokenizer;
  * 따라서 소수의 제곱수들만 보면 된다. 
  * 그다음 2이상 sqrt(max)이하 내에 존재하는 소수들에 대해 min이상 max이하 내의 수들 중에서 각 소수제곱의 배수인것들을 false로 바꿔준다.
  * 작업을 마치고 true인것들의 개수를 세주기만 하면 된다.
+ * 
  * </pre>
  * @author 박형규
  *
@@ -25,31 +25,22 @@ public class Main {
 		long min = Long.parseLong(st.nextToken()); // 1 ~ 1,000,000,000,000
 		long max = Long.parseLong(st.nextToken()); // min ~ min + 1,000,000
 		
-		boolean[] sieve = new boolean[(int)(Math.sqrt(max)) + 1]; // 에라토스테네스의 체
-		Arrays.fill(sieve, true);
-		sieve[0] = sieve[1] = false;
-		for (int i = 2; i <= Math.sqrt(max); i++) {
-			if (sieve[i]) {
-				for (int j = i + i; j <= Math.sqrt(max); j += i) {
-					sieve[j] = false;
-				}
-			}
-		}
+		int sqrt = (int)(Math.sqrt(max));
 		
 		// min보다 크거나 같고, max보다 작거나 같은 제곱ㄴㄴ수의 개수 출력
 		boolean[] numbers = new boolean[(int)(max - min) + 1];
-		Arrays.fill(numbers, true);
-		for (long i = 2; i <= Math.sqrt(max); i++) {
-			if (sieve[(int)i]) {
-				for (long j = (long) Math.ceil(1.0 * min / (i * i)); j <= (long) Math.floor(1.0 * max / (i * i)); j++) {
-					numbers[(int) (i * i * j - min)] = false;
-				}
+		
+		for (long i = 2; i <= sqrt; i++) {
+			long square = i * i;
+			long start = min % square == 0 ? min / square : min / square + 1;
+			for (long j = start; j * square <= max; j++) {
+				numbers[(int) (j * square - min)] = true;
 			}
 		}
 		
 		int answer = 0;
 		for (int i = 0; i < max - min + 1; i++) {
-			if (numbers[i]) answer++;
+			if (!numbers[i]) answer++;
 		}
 		System.out.println(answer);
 	}
