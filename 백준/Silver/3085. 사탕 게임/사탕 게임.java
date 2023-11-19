@@ -5,7 +5,7 @@ import java.util.TreeSet;
 
 /**
  * <pre>
- * 조합, 구현
+ * 인접한 두 칸 완전탐색 및 구현
  * </pre>
  * @author 박형규
  *
@@ -13,8 +13,9 @@ import java.util.TreeSet;
 public class Main {
 	
 	static int N, answer;
-	static int numbers[] = new int[2];
-	static char[][] board, copyBoard;
+	static char[][] board;
+	static int[] dr = {0, 1}; // 우, 하
+	static int[] dc = {1, 0}; // 우, 하
 
 	public static void main(String[] args) throws NumberFormatException, IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -22,74 +23,62 @@ public class Main {
 		N = Integer.parseInt(br.readLine());
 		
 		board = new char[N][N];
-		copyBoard = new char[N][N];
 		
 		for (int i = 0; i < N; i++) {
 			board[i] = br.readLine().toCharArray();
 		}
 		
-		// n*nC2 모든 경우의 수를 다 조사해봄
-		combination(0, 0);
+		for (int r1 = 0; r1 < N; r1++) {
+			for (int c1 = 0; c1 < N; c1++) {
+				for (int d = 0; d < 2; d++) {
+					int r2 = r1 + dr[d];
+					int c2 = c1 + dc[d];
+					
+					if (r2 < 0 || r2 >= N || c2 < 0 || c2 >= N) {
+						continue;
+					}
+					
+					char temp = board[r1][c1];
+					board[r1][c1] = board[r2][c2];
+					board[r2][c2] = temp;
+					
+					TreeSet<Integer> s = new TreeSet<>();
+					
+					for (int i = 0; i < N; i++) {
+						// 같은 행
+						int count = 1;
+						for (int j = 1; j < N; j++) {
+							if (board[i][j - 1] != board[i][j]) {
+								s.add(count);
+								count = 1;
+							} else {
+								count++;
+							}
+						}
+						s.add(count);
+						
+						// 같은 열
+						count = 1;
+						for (int j = 1; j < N; j++) {
+							if (board[j - 1][i] != board[j][i]) {
+								s.add(count);
+								count = 1;
+							} else {
+								count++;
+							}
+						}
+						s.add(count);
+					}
+					
+					answer = Math.max(answer, s.last());
+					
+					board[r2][c2] = board[r1][c1];
+					board[r1][c1] = temp;
+				}
+			}
+		}
 		
 		System.out.println(answer);
-	}
-
-	static void combination(int cnt, int start) {
-		
-		if (cnt == 2) {
-			
-			int r1 = numbers[0] / N, c1 = numbers[0] % N;
-			int r2 = numbers[1] / N, c2 = numbers[1] % N;
-			
-			// 두 칸이 서로 인접하지 않은 경우
-			if (Math.abs(r1 - r2) + Math.abs(c1 - c2) != 1) {
-				return;
-			}
-			
-			// 보드 복사본 생성
-			for (int i = 0; i < N; i++) {
-				copyBoard[i] = board[i].clone();
-			}
-			char temp = copyBoard[r1][c1];
-			copyBoard[r1][c1] = copyBoard[r2][c2];
-			copyBoard[r2][c2] = temp;
-			
-			TreeSet<Integer> s = new TreeSet<>();
-			for (int i = 0; i < N; i++) {
-				// 같은 행
-				int count = 1;
-				for (int j = 1; j < N; j++) {
-					if (copyBoard[i][j - 1] != copyBoard[i][j]) {
-						s.add(count);
-						count = 1;
-					} else {
-						count++;
-					}
-				}
-				s.add(count);
-				
-				// 같은 열
-				count = 1;
-				for (int j = 1; j < N; j++) {
-					if (copyBoard[j - 1][i] != copyBoard[j][i]) {
-						s.add(count);
-						count = 1;
-					} else {
-						count++;
-					}
-				}
-				s.add(count);
-			}
-			
-			answer = Math.max(answer, s.last());
-			return;
-		}
-		
-		for (int i = start; i < N * N; i++) {
-			numbers[cnt] = i;
-			combination(cnt + 1, i + 1);
-		}
-		
 	}
 
 }
