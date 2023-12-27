@@ -1,11 +1,11 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.Arrays;
+import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
 /**
  * <pre>
- * 카드를 합체할때마다 카드배열을 오름차순 정렬하고, 앞에 있는 가장 작은 두개의 카드를 더해서 덮어씌운다.
+ * 우선순위큐에 카드들을 집어넣고, 앞에 있는 가장 작은 두개의 카드를 꺼낸 다음 더한 값을 다시 두번 집어넣는다.
  * 이러면 가장 작은 점수를 획득가능하다.
  * </pre>
  */
@@ -18,24 +18,23 @@ public class Main {
 		int n = Integer.parseInt(st.nextToken()); // 카드의 개수 (2 ~ 1000)
 		int m = Integer.parseInt(st.nextToken()); // 카드 합체 횟수(0 ~ 15*n)
 		
-		long[] card = new long[n]; // 카드의 상태를 저장할 배열
+		PriorityQueue<Long> pq = new PriorityQueue<>();
 		
 		st = new StringTokenizer(br.readLine());
 		
 		for (int i = 0; i < n; i++) {
-			card[i] = Long.parseLong(st.nextToken()); // 카드에 써있는 수
+			pq.offer(Long.parseLong(st.nextToken())); // 카드에 써있는 수
 		}
 		
 		for (int i = 0; i < m; i++) {
-			Arrays.sort(card); // 오름차순 정렬
-			
-			long result = card[0] + card[1]; // 두장에 써있는 수를 더한 값
-			card[0] = card[1] = result; // 덮어 씌움
+			long result = pq.poll() + pq.poll(); // 두장에 써있는 수를 더한 값
+			pq.offer(result);
+			pq.offer(result);
 		}
 		
 		long answer = 0;
 		for (int i = 0; i < n; i++) {
-			answer += card[i];
+			answer += pq.poll();
 		}
 		
 		System.out.println(answer); // 가장 작은 점수 출력
