@@ -67,8 +67,9 @@ public class Main {
 				sb.append(i).append(" ");
 			}
 		}
+		sb.append("\n");
 		
-		System.out.println(sb);
+		System.out.print(sb);
 	}
 
 }
