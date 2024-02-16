@@ -1,7 +1,6 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Stack;
 import java.util.StringTokenizer;
 
 public class Main {
@@ -15,43 +14,30 @@ public class Main {
         st = new StringTokenizer(br.readLine());
 
         int[] lesson = new int[N]; // 강토의 기타 길이가 담긴 배열
-        int right = 0, answer = 0;
+        int left = 0, right = 0, answer = 0;
 
         for (int i = 0; i < N; i++) {
             lesson[i] = Integer.parseInt(st.nextToken());
+            left = Math.max(left, lesson[i]); // 이진탐색 왼쪽범위
             right += lesson[i]; // 이진탐색 오른쪽범위
             answer += lesson[i]; // 블루레이 최소 크기 저장할 변수
         }
-
-        int left = lesson[0]; // 이진탐색 왼쪽범위
 
         // 이진 탐색
         while (left <= right) {
             int mid = (left + right) / 2; // 현재 블루레이 크기
 
-            boolean flag = true; // 현재 블루레이 크기로 모든 강의를 담을수있는지 체크할 변수
-            Stack<Integer> s = new Stack<>();
-            s.push(0);
+            int count = 1;
+            int sum = lesson[0];
 
-            for (int i = 0; i < N; i++) {
-                if (lesson[i] > mid) { // 강의길이가 블루레이크기보다 큰 경우
-                    flag = false;
-                    break;
-                }
-
-                if (s.peek() + lesson[i] > mid) { // 현재강의를 새로운 블루레이에 배정해야하는경우
-                    s.push(lesson[i]);
-                } else { // 현재강의를 기존 블루레이에 배정가능한 경우
-                    s.push(s.pop() + lesson[i]);
+            for (int i = 1; i < N; i++) {
+                if (sum + lesson[i] > mid) {
+                    count++;
+                    sum = lesson[i];
+                } else {
+                    sum += lesson[i];
                 }
             }
-
-            if (!flag) { // 블루레이 이진탐색 왼쪽범위를 크게 조정
-                left = mid + 1;
-                continue;
-            }
-
-            int count = s.size(); // 블루레이 개수
 
             if (count > M) { // 블루레이 개수가 필요한블루레이개수보다 큰경우
                 left = mid + 1; // 이진탐색 왼쪽범위 크게조정
