@@ -33,7 +33,7 @@ public class Main {
 			return;
 		}
 		
-		if (eggs[cur][0] <= 0) { // 현재든 계란이 이미 깨진 계란인 경우 내려놓고 오른쪽 한칸 계란으로 넘어감
+		if (eggs[cur][0] <= 0 || cnt == N - 1) { // 현재든 계란이 이미 깨졌거나 나머지 계란이 모두 깨진 경우 내려놓고 오른쪽 한칸 계란으로 넘어감
 			dfs(cur + 1, cnt);
 			return;
 		}
@@ -58,11 +58,5 @@ public class Main {
 			eggs[cur][0] += w2;
 		}
 		
-		if (cur == 0 && cnt == 0) { // 가장 왼쪽 계란인 경우
-			return;
-		}
-		
-		dfs(cur + 1, cnt); // 가장 왼쪽 계란이 아닌 경우 현재계란으로 다른계란치지 않고 넘어가는 경우까지 고려해줌
 	}
-
 }
